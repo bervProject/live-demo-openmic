@@ -6,7 +6,7 @@ on:
       - v*
 env:
   IMAGE_NAME: 'openmic-april-1'
-  PROJECT_ID: 'f2t8g3i6'
+  PROJECT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 jobs:
   build-push-docker:
     runs-on: ubuntu-20.04
@@ -22,12 +22,14 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
       with:
-        registries: 'public.ecr.aws/${{ env.PROJECT_ID }}'
+        registries: ${{ secrets.AWS_ACCOUNT_ID }}
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@v3
       with:
-        images: ${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}
+        images: ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
     - name: Build and push Docker images
       uses: docker/build-push-action@v2
       with:
