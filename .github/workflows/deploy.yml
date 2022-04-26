@@ -1,0 +1,31 @@
+name: Deploy
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - v*
+env:
+  IMAGE_NAME: 'openmic-april-1'
+  PROJECT_ID: 'f2t8g3i6'
+jobs:
+  build-push-docker:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+      with:
+        registries: 'public.ecr.aws/${{ env.PROJECT_ID }}'
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+        images: ${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
