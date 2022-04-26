@@ -5,16 +5,9 @@ workflows:
   build_and_push_image:
     jobs:
       - aws-ecr/build-and-push-image:
+          filters:
+            branches:
+              only: main
           context: dev
           public-registry: true
           repo: openmic-april-1
-jobs:
-  build_image:
-    filters:
-      branches:
-        only: main
-    docker:
-      - image: cimg/base:2022.04
-    steps:
-      - checkout
-      - build_and_push_image
